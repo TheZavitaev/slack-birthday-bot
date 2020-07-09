@@ -1,7 +1,7 @@
 # slack-birthday-bot
 Slack-bot for the Yandex.Practicum team.
 
-ТЗ:
+# ТЗ:
 Возможности и фичи описаны в приоритетном порядке – от MVP до приятных плюшек. 
 
 **Начало работы и настройки бота**
