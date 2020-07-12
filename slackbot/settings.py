@@ -1,12 +1,20 @@
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = ')f@do8aqs)73s!oj3%84vkdhj6h+66=y04v!83rhioarb0-e1_'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG = True
+SLACK_CLIENT_ID = os.getenv('SLACK_CLIENT_ID')
+SLACK_CLIENT_SECRET = os.getenv('SLACK_CLIENT_SECRET')
+SLACK_VERIFICATION_TOKEN = os.getenv('SLACK_VERIFICATION_TOKEN')
+SLACK_BOT_USER_TOKEN = os.getenv('SLACK_BOT_USER_TOKEN')
 
-ALLOWED_HOSTS = []
+DEBUG = False
+
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -16,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'api',
 ]
 

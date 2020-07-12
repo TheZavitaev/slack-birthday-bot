@@ -1,0 +1,8 @@
+asgiref
+djangorestframework
+pytz
+django
+slackclient
+requests
+python-dotenv
+gunicorn
