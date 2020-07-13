@@ -17,7 +17,7 @@ class Team(models.Model):
 	teammate = models.ManyToManyField(Staff, related_name='teammate')
 
 	def __str__(self):
-		return f'комманда: {self.teamlead}'
+		return f'{self.teamlead} и его команда'
 
 
 class Gift(models.Model):
