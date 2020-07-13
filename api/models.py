@@ -6,7 +6,6 @@ class Staff(models.Model):
 	birth_date = models.DateTimeField()
 	sex = models.BooleanField(null=True)
 	slack_id = models.CharField(max_length=250)
-	is_admin = models.BooleanField(default=False)
 
 	def __str__(self):
 		return self.name
@@ -17,7 +16,7 @@ class Team(models.Model):
 	teammate = models.ManyToManyField(Staff, related_name='teammate')
 
 	def __str__(self):
-		return f'комманда: {self.teamlead}'
+		return f'{self.teamlead} и его команда'
 
 
 class Gift(models.Model):
