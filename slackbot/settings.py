@@ -8,12 +8,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-SLACK_CLIENT_ID = os.getenv('SLACK_CLIENT_ID')
-SLACK_CLIENT_SECRET = os.getenv('SLACK_CLIENT_SECRET')
 SLACK_VERIFICATION_TOKEN = os.getenv('SLACK_VERIFICATION_TOKEN')
 SLACK_BOT_USER_TOKEN = os.getenv('SLACK_BOT_USER_TOKEN')
+SLACK_BOT_BOT_TOKEN = os.getenv('SLACK_BOT_BOT_TOKEN')
+SLACK_BOT_USER_ID = os.getenv('SLACK_BOT_USER_ID')
+SLACK_BOT_CHANNEL_NAME = os.getenv('SLACK_BOT_CHANNEL_NAME')
 
-DEBUG = False
+
+DEBUG = os.getenv('DEBUG_MODE') or False
 
 ALLOWED_HOSTS = ['*']
 
@@ -75,7 +77,11 @@ DATABASES = {
 }
 if not DEBUG:
     DATABASES['default'] = dj_database_url.config()
-
+else:
+    DATABASES['default'] = {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
