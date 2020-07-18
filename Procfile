@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn slackbot.wsgi --log-file -
+web: gunicorn starter_bot.wsgi --log-file -

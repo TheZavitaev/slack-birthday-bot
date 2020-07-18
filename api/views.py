@@ -14,3 +14,4 @@ class SlackEventsSubscriptionViewSet(mixins.CreateModelMixin, viewsets.GenericVi
         if slack_message.get('type') == 'url_verification':
             return Response(data=slack_message, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)
+

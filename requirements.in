@@ -6,5 +6,3 @@ slackclient
 requests
 python-dotenv
 gunicorn
-dj-database-url
-psycopg2-binary
