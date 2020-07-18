@@ -1,3 +1,5 @@
+import json
+
 from rest_framework.response import Response
 from rest_framework import status, mixins, viewsets
 from django.conf import settings
@@ -24,5 +26,5 @@ class SlackInteractionsSubscriptionViewSet(mixins.CreateModelMixin, viewsets.Gen
     def create(self, request, *args, **kwargs):
         payload = request.data.get('payload')
         if payload:
-            on_slack_interaction(payload[0].get('message'))
+            on_slack_interaction(json.loads(payload))
         return Response(status=status.HTTP_200_OK)
