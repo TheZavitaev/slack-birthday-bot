@@ -1,7 +1,7 @@
 import os
 import random
 
-""" dict - maybe move it to another file """
+""" dicts - maybe move it to another file """
 
 GENERAL = {
     "from": ["всей души", "всего сердца", "сердца и почек", "полных легких",
@@ -54,12 +54,10 @@ FEMALE = {
 }
 
 def image_generator():
-    """!!should correct the path
-        gonna do it lately """
+    """!!should be corrected the path"""
     path = r"C:\Yandex\slack-birthday-bot\images"
     random_filename = random.choice(
         [x for x in os.listdir(path) if os.path.isfile(os.path.join(path, x))])
-    # print(random_filename)
     return random_filename
 
 
@@ -83,12 +81,9 @@ def text_generator(sex, name):
              f" всегда быть {bad_situation}, а в хороших - {good_situation}. " \
              f"Пусть этот день будет {which_day} для Вас, как и {time_period}. " \
              f"Да {funny_one}!"
-    # print(phrase)
     return phrase
 
 if __name__ == "__main__":
-    text_generator("female", "Светлана")
-    # print("-------------------")
-    text_generator("male", "Сергей")
+    text_generator(sex, name)
     image_generator()
 
