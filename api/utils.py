@@ -76,7 +76,7 @@ def get_blocks_for_join_form():
                                 "text": "Сохранить",
                                 "emoji": True
                             },
-                            "value": "click_me_123"
+                            "value": "save"
                         }
                     ]
                 }

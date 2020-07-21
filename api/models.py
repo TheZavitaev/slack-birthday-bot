@@ -43,4 +43,5 @@ class Interaction(models.Model):
 	)
 	message_ts = models.CharField(max_length=250, null=False, blank=False)
 	kind = models.CharField(max_length=15, choices=INTERACTION_CHOICES, default='UJF', unique=True)
-	channel = models.ForeignKey(Channel, on_delete=models.CASCADE)
+	value = models.CharField(max_length=250, null=False, blank=False)
+	user = models.ForeignKey(Staff, on_delete=models.CASCADE)

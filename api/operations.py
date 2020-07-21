@@ -3,58 +3,46 @@ from api.utils import get_interaction_kind_code, get_blocks_for_join_form
 from slackbot.client import SlackClient
 
 
-def on_slack_event(slack_message, bot_user_id):
-    event = slack_message.get('event')
-    event_type = event.get('type')
-    user_id = event.get('user')
-    channel_id = event.get('channel')
-
-    if event_type == 'member_joined_channel':
-        if user_id == bot_user_id:
+def try_set_channel(channel_name, bot_user_id):
+    channels = SlackClient().api_call('conversations_list', is_user_api=True)['channels']
+    channel = [ch for ch in channels if ch['name'] == channel_name]
+    if len(channel) == 1:
+        channel_id = channel[0]['id']
+        if not Channel.objects.filter(slack_id=channel_id).exists():
+            Channel.objects.all().delete()
             channel = Channel.objects.create(slack_id=channel_id)
-            # Добавляем в канал интерактивную форму,
-            # на которую будем отправлять ссылку для каждого нового пользователя, прибывшего в канал
-            # TODO: подумать о кейсе, когда форму удалил кто-то из пользователей
-            blocks = get_blocks_for_join_form()
-            message = SlackClient().api_call('chat_postMessage', channel=channel_id, blocks=blocks)
-            Interaction.objects.create(
-                message_ts=message.get('ts'),
-                kind=get_interaction_kind_code('user_join_form'),
-                channel=channel,
-            )
-            # TODO: добавить создание в БД пользователей, которые уже есть в канале на момент, когда туда добавляют бота
-        else:
-            interact_with_joiner(channel_id, user_id)
+            member_ids = SlackClient().api_call('conversations_members', channel=channel_id, is_user_api=True)['members']
+            users = SlackClient().api_call('users_list', is_user_api=True)['members']
 
-    elif event_type == 'member_left_channel':
-        if user_id == bot_user_id:
-            channel = Channel.objects.get(slack_id=channel_id)
-            interactions = Interaction.objects.filter(channel=channel)
-            for interaction in interactions:
-                SlackClient().api_call('chat_delete', channel=channel_id, ts=interaction.message_ts)
-            channel.delete()
-        else:
-            Staff.objects.filter(slack_id=user_id).delete()
+            for user in users:
+                if user['id'] in member_ids and user['id'] != bot_user_id:
+                    create_user(channel, user['id'], user['profile']['real_name'])
 
 
-def interact_with_joiner(channel_id, user_id):
-    try:
-        channel = Channel.objects.get(slack_id=channel_id)
-        # TODO: добавить получение имени из АПИ Slack
-        name = 'Petya'
-        user = Staff.objects.create(channel=channel, slack_id=user_id, name=name)
-        # TODO: добавить отправку ссылки на форму ввода данных пользователя (может даже в личку, чтобы не спамить канал)
-
-    except Exception as e:
-        pass
+def try_create_user(channel_id, user_id):
+    channel = Channel.objects.filter(slack_id=channel_id)
+    if channel.exists():
+        name = SlackClient().api_call('users_info', user=user_id, is_user_api=True)['user']['profile']['real_name']
+        create_user(channel[0], user_id, name)
 
 
-def on_slack_interaction(payload):
-    message = payload.get('message', None)
-    try:
-        kind = Interaction.objects.get(message_ts=message.get('ts')).kind
-        if kind == 'UJF':
-            print(payload)
-            # TODO: добавить обработку данных формы и обновления данных пользователя в БД (дата рождения и пол)
-    except Exception as e:
-        pass
+def create_user(channel, user_id, name):
+    user = Staff.objects.create(channel=channel, slack_id=user_id, name=name)
+    blocks = get_blocks_for_join_form()
+    # TODO: сообщение может заспамить личный канал пользователя, если администратор будет переключать каналы с ботом
+    #  командой '/set_channel'. Сама по себе привязка пользователя к каналу поздравлений нужна для корректной рассылки
+    #  интерактивной формы ввода даты рождения и пола.
+    message = SlackClient().api_call('chat_postMessage', channel=user_id, blocks=blocks)
+    Interaction.objects.create(
+        message_ts=message.get('ts'),
+        kind=get_interaction_kind_code('user_join_form'),
+        user=user,
+    )
+
+
+def remove_user(user_id):
+    Staff.objects.filter(slack_id=user_id).delete()
+
+
+def get_kind_of_interaction(**kwargs):
+    return Interaction.objects.get(**kwargs).kind
