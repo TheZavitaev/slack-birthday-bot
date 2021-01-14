@@ -7,3 +7,10 @@ def get_or_create(session, model, **kwargs):
         session.add(instance)
         session.commit()
         return instance
+
+
+def bool_convert(string):
+    if string == 'True':
+        return True
+    else:
+        return False
