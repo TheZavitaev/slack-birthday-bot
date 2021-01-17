@@ -1,5 +1,3 @@
-import datetime
-import json
 import os
 import re
 
@@ -8,9 +6,7 @@ from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
-from slack_sdk import WebClient
 
-from context import update_home_tab_context_admin
 import utils
 
 load_dotenv()
@@ -84,10 +80,12 @@ def update_home_tab(client, event, logger):
         person = utils.get_or_create(db.session, User, slack_id=slack_id)
         persons = utils.get_birthday_persons()
         birth_month = {}
-
+        # Получаем короткое обозначение месяца дня рождения.
         for p in persons:
-            birth_month[p.slack_id] = (p.birthday.strftime("%b"))
-        print(birth_month)
+            month = utils.get_birthday_month(p)
+            birth_month[p] = month
+
+
         # if person.is_admin:
         #     client.views_publish(
         #         user_id=person.slack_id,

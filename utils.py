@@ -1,9 +1,8 @@
 import datetime as dt
-from itertools import groupby
 
 from sqlalchemy import extract
 
-from bot import User, db
+from bot import User
 
 
 def get_or_create(session, model, **kwargs):
@@ -52,10 +51,10 @@ def get_birthday_persons() -> list:
         replace_date = p.birthday.replace(year=date_now.year)
         if replace_date > date_now.date():
             persons.append(p)
-
+    #  Срез позволяет получить ближайшие Х дня рождения.
     return persons[:3]
 
 
-def get_birthday_month(person):
+def get_birthday_month(person) -> str:
     bday_month = person.birthday.strftime("%b")
     return bday_month
