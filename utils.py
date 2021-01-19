@@ -1,4 +1,5 @@
 import datetime as dt
+import random
 
 from sqlalchemy import extract
 
@@ -37,6 +38,7 @@ def convert_birthday(birthday: str):
 
 
 def get_birthday_persons() -> list:
+    """Получаем отсортированный по дню и месяцу список именинников"""
     date_now = dt.datetime(dt.datetime.today().year, dt.datetime.today().month,
                            dt.datetime.today().day)
 
@@ -56,5 +58,27 @@ def get_birthday_persons() -> list:
 
 
 def get_birthday_month(person) -> str:
+    """Получаем месяц рождения"""
     bday_month = person.birthday.strftime("%b")
     return bday_month
+
+
+def find_birthday_person():
+    bday_qs = User.query.filter(
+        extract('month', User.birthday) == dt.datetime.today().month,
+        extract('day', User.birthday) == dt.datetime.today().day).all()
+    return bday_qs
+
+
+def get_gif():
+    gifs = [
+        'https://media.giphy.com/media/lZqlpPlT9llVm/giphy.gif',
+        'https://media.giphy.com/media/26FPzWoJlFvXyiZ6E/giphy.gif',
+        'https://media.giphy.com/media/9hqsyNVlf0DOU/giphy.gif',
+        'https://media.giphy.com/media/45gODt1krqCOI/giphy.gif',
+        'https://media.giphy.com/media/ToMjGpM3hk5UL5UMQ4o/giphy.gif',
+        'https://media.giphy.com/media/W0rfEyF1UeEda/giphy.gif',
+        'https://media.giphy.com/media/WUO8fZQmigr4aiqmgl/giphy.gif',
+        'https://media.giphy.com/media/3ryOqmAw0s1Ve/giphy.gif',
+    ]
+    return random.choice(gifs)
