@@ -253,13 +253,13 @@ def slack_events():
     return handler.handle(request)
 
 
-# @flask_app.route("/")
-# def index():
-#     page_title = 'HomePage'
-#     return render_template('index.html',
-#                            mytitle=page_title,
-#                            mycontent="Hello World, i'm happy bot")
+@flask_app.route("/")
+def index():
+    page_title = 'HomePage'
+    return render_template('index.html',
+                           mytitle=page_title,
+                           mycontent="Hello World, i'm happy bot")
 
 
 if __name__ == "__main__":
-    flask_app.run(host='0.0.0.0', debug=True)
+    flask_app.run(host='0.0.0.0', debug=True, port=3000)
