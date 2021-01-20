@@ -51,7 +51,7 @@ def get_birthday_persons() -> list:
 
     for p in bday_sort:
         replace_date = p.birthday.replace(year=date_now.year)
-        if replace_date > date_now.date():
+        if replace_date >= date_now.date():
             persons.append(p)
     #  Срез позволяет получить ближайшие Х дня рождения.
     return persons[:3]
@@ -80,5 +80,28 @@ def get_gif():
         'https://media.giphy.com/media/W0rfEyF1UeEda/giphy.gif',
         'https://media.giphy.com/media/WUO8fZQmigr4aiqmgl/giphy.gif',
         'https://media.giphy.com/media/3ryOqmAw0s1Ve/giphy.gif',
+        'https://media.giphy.com/media/7JKCXRIPRJSkiQ3TFA/giphy.gif',
+        'https://media.giphy.com/media/26BRtW4zppWWjrsPu/giphy.gif',
+        'https://media.giphy.com/media/26Cfluza7h46k/giphy.gif',
+        'https://media.giphy.com/media/l4Kid4P3KeSvaXJok/giphy.gif',
+        'https://media.giphy.com/media/l4KhKxndSqYESS5y0/giphy.gif',
+        'https://media.giphy.com/media/26FPIV12CYbDSVIR2/giphy.gif',
+        'https://media.giphy.com/media/26FPpSuhgHvYo9Kyk/giphy.gif',
+        'https://media.giphy.com/media/equMguFgSfCOA/giphy.gif',
+        'https://media.giphy.com/media/26FPtpYuSu0pHJbYA/giphy.gif',
+        'https://media.giphy.com/media/Y4hRvf3iMThJBYanrA/giphy.gif',
+        'https://media.giphy.com/media/WOleJLo90kPzwP08Yj/giphy.gif',
+        'https://media.giphy.com/media/3o7btM5SfPJ8YlfjfW/giphy.gif',
+        'https://media.giphy.com/media/fiSOwmsa55BXW/giphy.gif',
     ]
     return random.choice(gifs)
+
+
+def text_generator(name):
+    wish_you = 'творческих узбеков, розовых пони и говорящих единорогов'
+    day = 'удивительный'
+    phrase = f'Поздравляем с днем рождения! ' \
+             f'В этот {day} день желаем тебе {wish_you}! ' \
+             f'Мы рады работать с тобой, ' \
+             f'а как сильно - расскажут ребята в комментариях!:tada::tada::tada:'
+    return phrase
