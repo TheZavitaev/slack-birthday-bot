@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import time
 
 from dotenv import load_dotenv
 from flask import Flask, request, render_template
@@ -170,6 +171,7 @@ def send_greeting_message(ack, say):
                 channel='C018QT2BV5X'  # CHANNEL_ID
             )
             i += 1
+            time.sleep(120)  # поздравлять именинников с 2х минутным интервалом
 
 
 @app.action('datepicker-birthday')
