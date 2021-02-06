@@ -12,22 +12,22 @@ from slack_bolt.adapter.flask import SlackRequestHandler
 import utils
 from context import get_context
 
+# Get secrets
 load_dotenv()
 
+# Init slack app
 app = App(
     token=os.getenv('SLACK_BOT_TOKEN'),
     signing_secret=os.getenv('SLACK_SIGNING_SECRET')
 )
 handler = SlackRequestHandler(app)
 
+# Init Flask app
 flask_app = Flask(__name__)
 flask_app.config[
     'SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bot.db'  # Не забудь 4 флеша для *nix
 flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(flask_app)
-
-NOTIFICATION_TIME = 9
-CHANNEL_ID = 'C0185GLD9ML'
 
 
 class User(db.Model):
@@ -38,8 +38,6 @@ class User(db.Model):
     slack_username = db.Column(db.String(255), nullable=True)
     birthday = db.Column(db.Date, nullable=True)
     wishlist = db.Column(db.String(255), nullable=True)
-    # teams = db.relationship('Team', backref='teams')
-    #  incoming_notifications_time = db
     is_teamlead = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_congratulate = db.Column(db.Boolean, default=True)
@@ -48,6 +46,7 @@ class User(db.Model):
         return f'Username - {self.slack_username} ID - {self.slack_id} BDay - {self.birthday}'
 
 
+# Test model, there is no functionality in it.
 class Team(db.Model):
     __tablename__ = 'teams'
 
@@ -59,6 +58,7 @@ class Team(db.Model):
 
 @app.message(re.compile('(hi|hello|hey|привет|:wave:|даров|дратути)'))
 def say_hello_regex(say, context, logger):
+    """spam stub"""
     try:
         greeting = context['matches'][0]
         slack_id = context['user_id']
@@ -70,6 +70,7 @@ def say_hello_regex(say, context, logger):
 
 @app.event('team_join')
 def ask_for_introduction(event, say):
+    """Stub, should send a message when entering the channel"""
     welcome_channel_id = utils.get_channel_id(event)
     slack_id = event["user"]["id"]
     person = utils.get_or_create(db.session, User, slack_id=slack_id)
@@ -94,7 +95,7 @@ def ask_for_introduction(event, say):
 
 @app.event('app_home_opened')
 def update_home_tab(client, event, logger):
-    """Вью Home page"""
+    """View Home page"""
     try:
         slack_id = event['user']
         person = utils.get_or_create(db.session, User, slack_id=slack_id)
@@ -109,6 +110,7 @@ def update_home_tab(client, event, logger):
 
 @app.action('send_greeting_message')
 def send_greeting_message(ack, say):
+    """Admin sends message by button"""
     ack()
     blocks = [
         {
@@ -134,7 +136,8 @@ def send_greeting_message(ack, say):
 
 @app.action('send_congratulations')
 def send_greeting_message(ack, say):
-    """Отправляет поздравления в общий чат, при наличии именинников"""
+    """The admin sends congratulations to the general chat, if there are
+    birthday people by clicking the button """
     ack()
     birthday_persons = utils.find_birthday_person()
 
@@ -171,12 +174,13 @@ def send_greeting_message(ack, say):
                 channel='C018QT2BV5X'  # CHANNEL_ID
             )
             i += 1
-            time.sleep(120)  # поздравлять именинников с 2х минутным интервалом
+
+            # congratulate the birthday people with a 2 minute interval
+            time.sleep(120)
 
 
 @app.action('datepicker-birthday')
 def get_birthday(ack, body, logger):
-    """Достает дату рождения"""
     try:
         ack()
         slack_id = body['user']['id']
@@ -200,7 +204,6 @@ def get_birthday(ack, body, logger):
 
 @app.action('congratulate_on_the_general_channel')
 def get_congratulate(ack, body, logger):
-    """Достает согласие на поздравление"""
     try:
         ack()
         slack_id = body['user']['id']
@@ -216,7 +219,7 @@ def get_congratulate(ack, body, logger):
 
 @app.message('get_data')
 def get_data(message, say, logger):
-    """Тестовая ручка, чтобы получать инфу о канале и пользователе"""
+    """Test handler to get channel and user info"""
     try:
         slack_id = message['user']
         person = utils.get_or_create(db.session, User, slack_id=slack_id)
@@ -253,12 +256,13 @@ def slack_events():
     return handler.handle(request)
 
 
-@flask_app.route("/")
-def index():
-    page_title = 'HomePage'
-    return render_template('index.html',
-                           mytitle=page_title,
-                           mycontent="Hello World, i'm happy bot")
+# It was supposed to make a one-page with information about the bot
+# @flask_app.route("/")
+# def index():
+#     page_title = 'HomePage'
+#     return render_template('index.html',
+#                            mytitle=page_title,
+#                            mycontent="Hello World, i'm happy bot")
 
 
 if __name__ == "__main__":

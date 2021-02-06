@@ -2,16 +2,17 @@ import utils
 
 
 def get_context(person):
-    # Показывает дату рождения юзера в качестве заполнителя
+    """The function forms the context for the home page"""
+    # Shows the user's date of birth as a placeholder
     try:
         initial_date = person.birthday
     except:
         initial_date = '1990-01-01'
 
-    # Получаем 3х "ближайших" именинников
+    # Get 3 "nearest" birthday people
     persons = utils.get_birthday_persons()
     birth_month = {}
-    # Получаем короткое обозначение месяца дня рождения в виде словаря.
+    # Gets the short name of the month of the birthday as a dictionary.
     for p in persons:
         month = utils.get_birthday_month(p)
         birth_month[p] = month
