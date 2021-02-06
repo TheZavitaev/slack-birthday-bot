@@ -6,8 +6,9 @@ from sqlalchemy import extract
 from bot import User
 
 
-def get_or_create(session, model, **kwargs):
-    """Получает экземпляр модели по запросу, если такового нет - создает его"""
+def get_or_create(session, model, **kwargs) -> object:
+    """Receives an instance of the model upon request, if there is none,
+    creates it """
     instance = session.query(model).filter_by(**kwargs).first()
     if instance:
         return instance
@@ -19,7 +20,7 @@ def get_or_create(session, model, **kwargs):
 
 
 def bool_convert(string: str) -> bool:
-    """Конвертирует строку в Bool"""
+    """Needed to save to the database"""
     if string == 'True':
         return True
     else:
@@ -27,7 +28,7 @@ def bool_convert(string: str) -> bool:
 
 
 def get_channel_id(data: dict) -> str:
-    """Возвращает id канала из payload"""
+    """Return channel id from payload"""
     channel = data['channel']
     return channel
 
@@ -38,7 +39,7 @@ def convert_birthday(birthday: str):
 
 
 def get_birthday_persons() -> list:
-    """Получаем отсортированный по дню и месяцу список именинников"""
+    """Gets a list of birthday people sorted by day and month"""
     date_now = dt.datetime(dt.datetime.today().year, dt.datetime.today().month,
                            dt.datetime.today().day)
 
@@ -53,24 +54,26 @@ def get_birthday_persons() -> list:
         replace_date = p.birthday.replace(year=date_now.year)
         if replace_date >= date_now.date():
             persons.append(p)
-    #  Срез позволяет получить ближайшие Х дня рождения.
+    #  The slice allows you to get the next X birthday.
     return persons[:3]
 
 
 def get_birthday_month(person) -> str:
-    """Получаем месяц рождения"""
+    """Gets the month of birth to be reflected in home"""
     bday_month = person.birthday.strftime("%b")
     return bday_month
 
 
 def find_birthday_person():
+    """Returns the birthday queriset"""
     bday_qs = User.query.filter(
         extract('month', User.birthday) == dt.datetime.today().month,
         extract('day', User.birthday) == dt.datetime.today().day).all()
     return bday_qs
 
 
-def get_gif():
+def get_gif() -> str:
+    """Returns a random GIF"""
     gifs = [
         'https://media.giphy.com/media/lZqlpPlT9llVm/giphy.gif',
         'https://media.giphy.com/media/26FPzWoJlFvXyiZ6E/giphy.gif',
@@ -97,11 +100,12 @@ def get_gif():
     return random.choice(gifs)
 
 
-def text_generator(name):
+def text_generator(name: str) -> str:
     wish_you = 'творческих узбеков, розовых пони и говорящих единорогов'
     day = 'удивительный'
-    phrase = f'Поздравляем с днем рождения! ' \
-             f'В этот {day} день желаем тебе {wish_you}! ' \
-             f'Мы рады работать с тобой, ' \
-             f'а как сильно - расскажут ребята в комментариях!:tada::tada::tada:'
+    phrase = (f'Поздравляем с днем рождения {name}! '
+              f'В этот {day} день желаем тебе {wish_you}! '
+              f'Мы рады работать с тобой, '
+              f'а как сильно - расскажут ребята в комментариях!'
+              f':tada::tada::tada:')
     return phrase
