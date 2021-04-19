@@ -10,7 +10,9 @@ from slack_bolt import App
 from slack_bolt.adapter.flask import SlackRequestHandler
 
 import utils
-from context import get_context
+from context import get_homepage_context, team_join_block, send_greeting_message_block
+
+from loguru import logger
 
 # Get secrets
 load_dotenv()
@@ -37,7 +39,6 @@ class User(db.Model):
     slack_id = db.Column(db.String(255), nullable=False)
     slack_username = db.Column(db.String(255), nullable=True)
     birthday = db.Column(db.Date, nullable=True)
-    wishlist = db.Column(db.String(255), nullable=True)
     is_teamlead = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_congratulate = db.Column(db.Boolean, default=True)
@@ -57,7 +58,7 @@ class Team(db.Model):
 
 
 @app.message(re.compile('(hi|hello|hey|привет|:wave:|даров|дратути)'))
-def say_hello_regex(say, context, logger):
+def say_hello_regex(say, context):
     """spam stub"""
     try:
         greeting = context['matches'][0]
@@ -71,37 +72,36 @@ def say_hello_regex(say, context, logger):
 @app.event('team_join')
 def ask_for_introduction(event, say):
     """Stub, should send a message when entering the channel"""
+
     welcome_channel_id = utils.get_channel_id(event)
-    slack_id = event["user"]["id"]
+    slack_id = event['user']['id']
     person = utils.get_or_create(db.session, User, slack_id=slack_id)
-    blocks = [
-        {
-            "type": "section",
-            "text": {"type": "mrkdwn", "text": "Выбери дату своего рождения"},
-            "accessory": {
-                "type": "datepicker",
-                "action_id": "datepicker-birthday",
-                "initial_date": "1990-01-01",
-                "placeholder": {"type": "plain_text", "text": "Выбери дату"}
-            }
-        }
-    ]
-    say(
-        blocks=blocks,
-        text=f'Добро пожаловать, <@{slack_id}>! 🎉 Я поздработ!',
-        channel=welcome_channel_id
-    )
+
+    logger.debug(event)
+    logger.debug(f'{person} enter in channel {welcome_channel_id}')
+
+    blocks = team_join_block
+
+    try:
+        say(
+            blocks=blocks,
+            text=f'Добро пожаловать, <@{slack_id}>! 🎉 Я поздработ!',
+            channel=event["user"]
+        )
+    except Exception as e:
+        logger.error(f'Error team join - {e}')
 
 
 @app.event('app_home_opened')
-def update_home_tab(client, event, logger):
+def update_home_tab(client, event):
     """View Home page"""
+
     try:
         slack_id = event['user']
         person = utils.get_or_create(db.session, User, slack_id=slack_id)
         client.views_publish(
             user_id=person.slack_id,
-            view=get_context(person)
+            view=get_homepage_context(person)
         )
 
     except Exception as e:
@@ -111,23 +111,9 @@ def update_home_tab(client, event, logger):
 @app.action('send_greeting_message')
 def send_greeting_message(ack, say):
     """Admin sends message by button"""
+
     ack()
-    blocks = [
-        {
-            "type": "section",
-            "block_id": "birthday",
-            "text": {"type": "mrkdwn", "text": "Всем привет! Я поздработ! "
-                                               "Введи дату своего рождения и"
-                                               " никто про тебя не забудет "
-                                               ":)"},
-            "accessory": {
-                "type": "datepicker",
-                "action_id": "datepicker-birthday",
-                "initial_date": "1990-01-01",
-                "placeholder": {"type": "plain_text", "text": "Выбери дату"}
-            }
-        }
-    ]
+    blocks = send_greeting_message_block
     say(
         blocks=blocks,
         channel='C018QT2BV5X'  # CHANNEL_ID
@@ -136,8 +122,7 @@ def send_greeting_message(ack, say):
 
 @app.action('send_congratulations')
 def send_greeting_message(ack, say):
-    """The admin sends congratulations to the general chat, if there are
-    birthday people by clicking the button """
+    """The admin sends congratulations to the general chat, if there are birthday people by clicking the button"""
     ack()
     birthday_persons = utils.find_birthday_person()
 
@@ -180,7 +165,7 @@ def send_greeting_message(ack, say):
 
 
 @app.action('datepicker-birthday')
-def get_birthday(ack, body, logger):
+def get_birthday(ack, body):
     try:
         ack()
         slack_id = body['user']['id']
@@ -188,10 +173,7 @@ def get_birthday(ack, body, logger):
         person.slack_username = body['user']['username']
 
         try:
-            birthday = \
-                body['view']['state']['values']['birthday'][
-                    'datepicker-birthday'][
-                    'selected_date']
+            birthday = body['view']['state']['values']['birthday']['datepicker-birthday']['selected_date']
         except:
             birthday = body['actions'][0]['selected_date']
 
@@ -203,7 +185,7 @@ def get_birthday(ack, body, logger):
 
 
 @app.action('congratulate_on_the_general_channel')
-def get_congratulate(ack, body, logger):
+def get_congratulate(ack, body):
     try:
         ack()
         slack_id = body['user']['id']
@@ -218,13 +200,17 @@ def get_congratulate(ack, body, logger):
 
 
 @app.message('get_data')
-def get_data(message, say, logger):
+def get_data(message, say):
     """Test handler to get channel and user info"""
     try:
+        logger.debug(message)
+
         slack_id = message['user']
         person = utils.get_or_create(db.session, User, slack_id=slack_id)
         birthday = person.birthday
         channel = utils.get_channel_id(message)
+
+
 
         if person.is_admin:
             is_admin = 'админ'

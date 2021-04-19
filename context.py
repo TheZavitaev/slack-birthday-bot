@@ -1,7 +1,7 @@
 import utils
 
 
-def get_context(person):
+def get_homepage_context(person):
     """The function forms the context for the home page"""
     # Shows the user's date of birth as a placeholder
     try:
@@ -266,3 +266,34 @@ def get_context(person):
             ]
         }
     return context
+
+
+team_join_block = [
+        {
+            "type": "section",
+            "text": {"type": "mrkdwn", "text": "Выбери дату своего рождения"},
+            "accessory": {
+                "type": "datepicker",
+                "action_id": "datepicker-birthday",
+                "initial_date": "1990-01-01",
+                "placeholder": {"type": "plain_text", "text": "Выбери дату"}
+            }
+        }
+    ]
+
+send_greeting_message_block = [
+        {
+            "type": "section",
+            "block_id": "birthday",
+            "text": {"type": "mrkdwn", "text": "Всем привет! Я поздработ! "
+                                               "Введи дату своего рождения и"
+                                               " никто про тебя не забудет "
+                                               ":)"},
+            "accessory": {
+                "type": "datepicker",
+                "action_id": "datepicker-birthday",
+                "initial_date": "1990-01-01",
+                "placeholder": {"type": "plain_text", "text": "Выбери дату"}
+            }
+        }
+    ]
