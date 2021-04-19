@@ -39,22 +39,13 @@ class User(db.Model):
     slack_id = db.Column(db.String(255), nullable=False)
     slack_username = db.Column(db.String(255), nullable=True)
     birthday = db.Column(db.Date, nullable=True)
+    photo = db.Column(db.String(500), nullable=True)
     is_teamlead = db.Column(db.Boolean, default=False)
     is_admin = db.Column(db.Boolean, default=False)
     is_congratulate = db.Column(db.Boolean, default=True)
 
     def __repr__(self):
         return f'Username - {self.slack_username} ID - {self.slack_id} BDay - {self.birthday}'
-
-
-# Test model, there is no functionality in it.
-class Team(db.Model):
-    __tablename__ = 'teams'
-
-    team_id = db.Column(db.Integer, primary_key=True)
-    teamlead_id = db.Column(db.Integer(), db.ForeignKey('users.id'))
-    teammates_ids = db.Column(db.Integer(), db.ForeignKey('users.id'))
-    channel_id = db.Column(db.String(255), nullable=False)
 
 
 @app.message(re.compile('(hi|hello|hey|привет|:wave:|даров|дратути)'))
@@ -120,6 +111,7 @@ def send_greeting_message(ack, say):
     )
 
 
+@logger.catch
 @app.action('send_congratulations')
 def send_greeting_message(ack, say):
     """The admin sends congratulations to the general chat, if there are birthday people by clicking the button"""
@@ -210,8 +202,6 @@ def get_data(message, say):
         birthday = person.birthday
         channel = utils.get_channel_id(message)
 
-
-
         if person.is_admin:
             is_admin = 'админ'
         else:
@@ -235,6 +225,37 @@ def get_data(message, say):
 
     except Exception as e:
         logger.error(f"Error send data: {e}")
+
+
+# TODO: shedule\\111
+@app.message("wake me up")
+def say_hello(client, message):
+    # https://api.slack.com/methods/chat.scheduleMessage
+    logger.debug('wakeup')
+    # Unix Epoch time for September 30, 2020 11:59:59 PM
+    when_september_ends = 1618870600
+    channel_id = message["channel"]
+    client.chat_scheduleMessage(
+        channel=channel_id,
+        post_at=when_september_ends,
+        text="Summer has come and passed"
+    )
+
+
+@logger.catch
+@app.message('my avatar')
+def get_avatar(client, message):
+    users = User.query.all()
+    for user in users:
+        result = client.users_info(
+            user=user.slack_id
+        )
+        person = utils.get_or_create(db.session, User, slack_id=user.slack_id)
+        url = result.get('user').get('profile').get('image_original')
+        person.photo = url
+        db.session.commit()
+
+        logger.info(person.photo)
 
 
 @flask_app.route("/slack/events", methods=["POST"])

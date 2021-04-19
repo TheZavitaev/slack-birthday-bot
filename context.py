@@ -87,7 +87,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://mygamehunter.ru/images/thumbnail/147702/550",
+                            "image_url": persons[0].photo,
                             "alt_text": "cute cat"
                         },
                         {
@@ -101,7 +101,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
+                            "image_url": persons[1].photo,
                             "alt_text": "cute cat"
                         },
                         {
@@ -115,7 +115,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://store.playstation.com/store/api/chihiro/00_09_000/container/TW/en/999/UP2538-CUSA05620_00-ASIA000000000148/1578133265000/image?w=240&h=240&bg_color=000000&opacity=100&_version=00_09_000",
+                            "image_url": persons[2].photo,
                             "alt_text": "cute cat"
                         },
                         {
@@ -226,7 +226,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://mygamehunter.ru/images/thumbnail/147702/550",
+                            "image_url": persons[0].photo,
                             "alt_text": "cute cat"
                         },
                         {
@@ -240,7 +240,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://pbs.twimg.com/profile_images/625633822235693056/lNGUneLX_400x400.jpg",
+                            "image_url": persons[1].photo,
                             "alt_text": "cute cat"
                         },
                         {
@@ -254,7 +254,7 @@ def get_homepage_context(person):
                     "elements": [
                         {
                             "type": "image",
-                            "image_url": "https://store.playstation.com/store/api/chihiro/00_09_000/container/TW/en/999/UP2538-CUSA05620_00-ASIA000000000148/1578133265000/image?w=240&h=240&bg_color=000000&opacity=100&_version=00_09_000",
+                            "image_url": persons[2].photo,
                             "alt_text": "cute cat"
                         },
                         {
